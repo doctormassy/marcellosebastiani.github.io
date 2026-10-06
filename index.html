@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcello Sebastiani — Portfolio</title>
+<meta name="description" content="Architecture and engineering portfolio of Marcello Sebastiani, Architect and Civil Engineer.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%231b1c19'/%3E%3Ctext x='32' y='43' font-family='Georgia,serif' font-size='30' fill='%23f2f0e8' text-anchor='middle'%3EMS%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+<style>
+  :root{
+    --ink:#17181a; --ink-2:#222428; --line:rgba(255,255,255,.22);
+    --text:#efede6; --text-dim:#a9a69c; --accent:#1f5f8b;
+    --serif:"Fraunces","Georgia",serif;
+    --sans:"Inter","Segoe UI",system-ui,sans-serif;
+    --mono:"IBM Plex Mono","Consolas",monospace;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; background:radial-gradient(ellipse at 50% 40%, #2a2c30 0%, var(--ink) 70%); color:var(--text); font-family:var(--sans); overflow:hidden; }
+
+  .topbar{
+    position:fixed; top:0; left:0; right:0; z-index:20;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:14px 22px;
+  }
+  .brand{ font-family:var(--serif); font-size:1.02rem; letter-spacing:.01em; color:var(--text); text-decoration:none; }
+  .brand small{ display:block; font-family:var(--sans); font-size:.6rem; letter-spacing:.16em; text-transform:uppercase; color:var(--text-dim); margin-top:3px; }
+  .topbar .actions{ display:flex; gap:10px; }
+  .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:.74rem; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--text); text-decoration:none; background:rgba(255,255,255,.06);
+    border:1px solid var(--line); border-radius:999px; padding:8px 14px; cursor:pointer;
+    font-family:var(--sans);
+  }
+  .pill:hover{ background:rgba(255,255,255,.14); }
+  .pill svg{ width:14px; height:14px; }
+
+  .stage{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; }
+  #bookBox{ position:relative; transition:transform .7s cubic-bezier(.4,.1,.2,1); }
+  #bookBox.is-cover{ transform:translateX(-25%); }
+  #book .page{ background:#fff; overflow:hidden; }
+  #book .page img{ width:100%; height:100%; display:block; object-fit:cover; user-select:none; -webkit-user-drag:none; }
+  #bookBox.is-cover #coverShade{ opacity:1; }
+  #coverShade{
+    position:absolute; top:0; left:0; width:50%; height:100%;
+    opacity:0; transition:opacity .4s ease; pointer-events:none; z-index:0;
+    background:linear-gradient(to right, transparent 55%, rgba(0,0,0,.35) 100%);
+  }
+  .loading{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; font-size:.75rem; letter-spacing:.14em; text-transform:uppercase; color:var(--text-dim); z-index:1; }
+
+  .controls{
+    position:fixed; left:0; right:0; bottom:0; z-index:20;
+    display:flex; align-items:center; justify-content:center; gap:18px;
+    padding:14px 20px 20px;
+  }
+  .nav-btn{
+    width:44px; height:44px; border-radius:50%;
+    background:rgba(255,255,255,.06); border:1px solid var(--line);
+    color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .nav-btn:hover{ background:rgba(255,255,255,.16); }
+  .nav-btn:disabled{ opacity:.25; cursor:default; }
+  .nav-btn svg{ width:18px; height:18px; }
+  .indicator{ font-family:var(--mono); font-size:.8rem; color:var(--text); min-width:86px; text-align:center; }
+
+  /* Zoom viewer */
+  .zoom{ position:fixed; inset:0; z-index:50; background:#0d0e10; display:none; flex-direction:column; }
+  .zoom.open{ display:flex; }
+  .zoom-bar{ display:flex; align-items:center; justify-content:space-between; padding:12px 18px; border-bottom:1px solid rgba(255,255,255,.08); }
+  .zoom-bar .hint{ font-size:.72rem; color:var(--text-dim); letter-spacing:.04em; }
+  .zoom-scroll{ flex:1; overflow:auto; padding:18px; display:flex; flex-direction:column; align-items:center; gap:18px; }
+  .zoom-scroll img{ width:100%; max-width:2200px; height:auto; display:block; background:#fff; cursor:zoom-in; }
+  .zoom-scroll img.full{ width:auto; max-width:none; cursor:zoom-out; }
+
+  @media (max-width: 700px){
+    .brand small{ display:none; }
+    .pill span{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="./">Marcello Sebastiani<small>Architect and Civil Engineer · Portfolio</small></a>
+  <div class="actions">
+    <button class="pill" id="zoomBtn" type="button" title="Zoom current pages (Z)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg><span>Zoom</span>
+    </button>
+    <a class="pill" href="Sebastiani_Portfolio.pdf" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>PDF</span>
+    </a>
+  </div>
+</header>
+
+<div class="loading" id="loading">Loading portfolio…</div>
+
+<main class="stage">
+  <div id="bookBox">
+    <div id="coverShade"></div>
+    <div id="book"></div>
+  </div>
+</main>
+
+<nav class="controls">
+  <button class="nav-btn" id="prevBtn" aria-label="Previous page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <div class="indicator" id="indicator">1 / 21</div>
+  <button class="nav-btn" id="nextBtn" aria-label="Next page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+</nav>
+
+<div class="zoom" id="zoom" role="dialog" aria-label="Zoomed pages">
+  <div class="zoom-bar">
+    <span class="hint">Click a drawing to view at full resolution · Esc to close</span>
+    <button class="pill" id="zoomClose" type="button">Close</button>
+  </div>
+  <div class="zoom-scroll" id="zoomScroll"></div>
+</div>
+
+<script>
+  const TOTAL = 21;
+  const RATIO = 3600 / 2471;
+  const pad = n => String(n).padStart(2, "0");
+  const md = i => "pages/md/page-" + pad(i + 1) + ".jpg";
+  const hd = i => "pages/hd/page-" + pad(i + 1) + ".jpg";
+
+  const bookEl = document.getElementById("book");
+  const boxEl = document.getElementById("bookBox");
+
+  for (let i = 0; i < TOTAL; i++) {
+    const page = document.createElement("div");
+    page.className = "page";
+    if (i === 0 || i === TOTAL - 1) page.dataset.density = "hard";
+    const img = document.createElement("img");
+    img.src = md(i);
+    img.alt = "Page " + (i + 1);
+    img.decoding = "async";
+    page.appendChild(img);
+    bookEl.appendChild(page);
+  }
+
+  const isPortrait = () => window.innerWidth < 760 || window.innerWidth / window.innerHeight < 1.15;
+
+  function fit() {
+    const topPad = 76, bottomPad = 92, sidePad = window.innerWidth < 760 ? 14 : 60;
+    const availW = window.innerWidth - sidePad * 2;
+    const availH = window.innerHeight - topPad - bottomPad;
+    const pages = isPortrait() ? 1 : 2;
+    let pageW = availW / pages;
+    let pageH = pageW / RATIO;
+    if (pageH > availH) { pageH = availH; pageW = pageH * RATIO; }
+    return { pageW: Math.floor(pageW), pageH: Math.floor(pageH), pages };
+  }
+
+  let size = fit();
+  boxEl.style.width = size.pageW * size.pages + "px";
+  boxEl.style.height = size.pageH + "px";
+  boxEl.style.marginTop = "-16px";
+
+  const pageFlip = new St.PageFlip(bookEl, {
+    width: size.pageW,
+    height: size.pageH,
+    size: "stretch",
+    minWidth: 200, maxWidth: 4000,
+    minHeight: 140, maxHeight: 3000,
+    showCover: true,
+    usePortrait: true,
+    autoSize: true,
+    maxShadowOpacity: 0.35,
+    drawShadow: true,
+    flippingTime: 750,
+    mobileScrollSupport: false,
+    showPageCorners: true,
+  });
+  pageFlip.loadFromHTML(bookEl.querySelectorAll(".page"));
+
+  const indicator = document.getElementById("indicator");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  function visiblePages() {
+    const i = pageFlip.getCurrentPageIndex();
+    if (pageFlip.getOrientation() === "portrait" || i === 0 || i === TOTAL - 1) return [i];
+    const left = i % 2 === 1 ? i : i - 1;
+    return [left, left + 1].filter(p => p >= 0 && p < TOTAL);
+  }
+
+  function update() {
+    const v = visiblePages();
+    indicator.textContent = (v.length > 1 ? (v[0] + 1) + "–" + (v[1] + 1) : (v[0] + 1)) + " / " + TOTAL;
+    prevBtn.disabled = v[0] <= 0;
+    nextBtn.disabled = v[v.length - 1] >= TOTAL - 1;
+    boxEl.classList.toggle("is-cover", v[0] === 0 && pageFlip.getOrientation() !== "portrait");
+  }
+
+  pageFlip.on("init", () => { document.getElementById("loading").remove(); update(); });
+  pageFlip.on("flip", update);
+  pageFlip.on("changeOrientation", update);
+
+  prevBtn.addEventListener("click", () => pageFlip.flipPrev());
+  nextBtn.addEventListener("click", () => pageFlip.flipNext());
+
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      size = fit();
+      boxEl.style.width = size.pageW * size.pages + "px";
+      boxEl.style.height = size.pageH + "px";
+      pageFlip.update();
+      update();
+    }, 150);
+  });
+
+  // Zoom viewer: loads the full-resolution scans only on demand
+  const zoom = document.getElementById("zoom");
+  const zoomScroll = document.getElementById("zoomScroll");
+  function openZoom() {
+    zoomScroll.innerHTML = "";
+    visiblePages().forEach(i => {
+      const img = document.createElement("img");
+      img.src = hd(i);
+      img.alt = "Page " + (i + 1);
+      img.addEventListener("click", () => img.classList.toggle("full"));
+      zoomScroll.appendChild(img);
+    });
+    zoom.classList.add("open");
+    zoomScroll.scrollTop = 0;
+  }
+  function closeZoom() { zoom.classList.remove("open"); }
+  document.getElementById("zoomBtn").addEventListener("click", openZoom);
+  document.getElementById("zoomClose").addEventListener("click", closeZoom);
+
+  document.addEventListener("keydown", e => {
+    if (zoom.classList.contains("open")) { if (e.key === "Escape") closeZoom(); return; }
+    if (e.key === "ArrowRight") pageFlip.flipNext();
+    if (e.key === "ArrowLeft") pageFlip.flipPrev();
+    if (e.key === "z" || e.key === "Z") openZoom();
+  });
+</script>
+</body>
+</html>
